@@ -1,0 +1,44 @@
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="user.management.dao.UserDao">
+    <select id="checkUser" resultType="User">
+    	select * from users where uname=#{name} and upwd=#{pwd}
+    </select>
+    <resultMap id="getUserWithDept" type="User">
+		<id column="uuid" property="uuid"/>
+		<result column="uname" property="uname"/>
+		<result column="upwd" property="upwd"/>
+		<result column="sex" property="sex"/>
+		<result column="birth" property="birth"/>
+		<result column="city" property="city"/>
+		<result column="did" property="did"/>
+		<association property="dept" column="did" 
+			select="user.management.dao.DeptDao.getDeptById"/>
+	</resultMap>
+    <select id="getUserList" resultMap="getUserWithDept">
+    	select
+    		uuid,uname,upwd,sex,birth,city,did
+    	from users
+    	<where>
+    		<if test="uname !=null and uname !=''">
+    			and uname like concat('%',#{uname},'%') 
+    		</if>
+    	</where>
+    	limit #{pageBean.startRow},#{pageBean.endRow}	
+    </select>
+    
+    <select id="getUserCount" resultType="int">
+    	select count(*) from users where 1=1
+    	<if test="uname !=null and uname !=''">
+    		and uname like concat('%',#{uname},'%')
+    	</if>
+    </select>
+    
+    <select id="getUserById" resultType="User">
+    	select * from users where uuid=#{uuid}
+    </select>
+    <delete id="deleteUserById">
+    	delete from users where uuid=#{uuid}
+    </delete>
+</mapper>
